@@ -474,6 +474,26 @@ You can see 21 for the upstream_rq_pending_overflow value which means 21 calls s
 
 Приложите скриншот работы circuit breaker'а
 
+Дополнительно запустил такую команду
+
+```bash
+kubectl exec -n cinemaabyss $FORTIO_POD -c fortio -- fortio load -c 150 -qps 0 -n 1000 -loglevel Warning http://movies-service:8081/api/movies
+```
+
+<div align="center">
+
+![Скриншот результатов теста Fortio](./documentation/pictures/fortio-test.png)
+
+</div>
+
+#### Скриншот работы circuit breaker'а
+
+<div align="center">
+
+![Скриншот работы circuit breaker'а](./documentation/pictures/circuit-breaker-stats.png)
+
+</div>
+
 Удаляем все
 ```bash
 istioctl uninstall --purge
