@@ -132,6 +132,13 @@ jobs:
 Как только сборка отработает и в github registry появятся ваши образы, можно переходить к блоку настройки Kubernetes
 Успешным результатом данного шага является "зеленая" сборка и "зеленые" тесты
 
+#### Скриншот "зеленой" сборки и "зеленых" тестов
+
+<div align="center">
+
+![Скриншот "зеленой" сборки и "зеленых" тестов](./documentation/pictures/workflows.png)
+
+</div>
 
 ### Proxy в Kubernetes
 
@@ -296,6 +303,21 @@ cat .docker/config.json | base64
 #### Шаг 3
 Добавьте сюда скриншота вывода при вызове https://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.
 
+#### Скриншот вывода при вызове https://cinemaabyss.example.com/api/movies
+
+<div align="center">
+
+![Скриншот вывода при вызове https://cinemaabyss.example.com/api/movies](./documentation/pictures/kctl-movies.png)
+
+</div>
+
+#### Скриншот вывода event-service после вызова тестов
+
+<div align="center">
+
+![Скриншот вывода event-service после вызова тестов](./documentation/pictures/kctl-events.png)
+
+</div>
 
 ## Задание 4
 Для простоты дальнейшего обновления и развертывания вам как архитектуру необходимо так же реализовать helm-чарты для прокси-сервиса и проверить работу 
