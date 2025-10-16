@@ -5,7 +5,13 @@
 1. Спроектируйте to be архитектуру КиноБездны, разделив всю систему на отдельные домены и организовав интеграционное взаимодействие и единую точку вызова сервисов.
 Результат представьте в виде контейнерной диаграммы в нотации С4.
 Добавьте ссылку на файл в этот шаблон
-[ссылка на файл](ссылка)
+[ссылка на файл](./documentation/architecture/Container.puml)
+
+<div align="center">
+
+![Визуализация диаграммы контейнеров в модели C4](./documentation/architecture/Container.svg)
+
+</div>
 
 
 ## Задание 2
@@ -59,6 +65,22 @@
 Необходимые тесты для проверки этого API вызываются при запуске npm run test:local из папки tests/postman 
 Приложите скриншот тестов и скриншот состояния топиков Kafka http://localhost:8090 
 
+### Скриншот тестов
+
+<div align="center">
+
+![Скриншот тестов](./documentation/pictures/tests.png)
+
+</div>
+
+### Скриншот состояния топиков Kafka
+
+<div align="center">
+
+![Скриншот состояния топиков Kafka](./documentation/pictures/topics.png)
+
+</div>
+
 
 ## Задание 3
 
@@ -110,6 +132,13 @@ jobs:
 Как только сборка отработает и в github registry появятся ваши образы, можно переходить к блоку настройки Kubernetes
 Успешным результатом данного шага является "зеленая" сборка и "зеленые" тесты
 
+#### Скриншот "зеленой" сборки и "зеленых" тестов
+
+<div align="center">
+
+![Скриншот "зеленой" сборки и "зеленых" тестов](./documentation/pictures/workflows.png)
+
+</div>
 
 ### Proxy в Kubernetes
 
@@ -274,6 +303,21 @@ cat .docker/config.json | base64
 #### Шаг 3
 Добавьте сюда скриншота вывода при вызове https://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.
 
+#### Скриншот вывода при вызове https://cinemaabyss.example.com/api/movies
+
+<div align="center">
+
+![Скриншот вывода при вызове https://cinemaabyss.example.com/api/movies](./documentation/pictures/kctl-movies.png)
+
+</div>
+
+#### Скриншот вывода event-service после вызова тестов
+
+<div align="center">
+
+![Скриншот вывода event-service после вызова тестов](./documentation/pictures/kctl-events.png)
+
+</div>
 
 ## Задание 4
 Для простоты дальнейшего обновления и развертывания вам как архитектуру необходимо так же реализовать helm-чарты для прокси-сервиса и проверить работу 
@@ -349,6 +393,21 @@ minikube tunnel
 https://cinemaabyss.example.com/api/movies
 и приложите скриншот развертывания helm и вывода https://cinemaabyss.example.com/api/movies
 
+#### Скриншот развертывания helm
+
+<div align="center">
+
+![Скриншот развертывания helm](./documentation/pictures/helm_install.png)
+
+</div>
+
+#### Скриншот вывода <https://cinemaabyss.example.com/api/movies>
+
+<div align="center">
+
+![Скриншот вывода <https://cinemaabyss.example.com/api/movies>](./documentation/pictures/helm_movies.png)
+
+</div>
 
 # Задание 5
 Компания планирует активно развиваться и для повышения надежности, безопасности, реализации сетевых паттернов типа Circuit Breaker и канареечного деплоя вам как архитектору необходимо развернуть istio и настроить circuit breaker для monolith и movies сервисов.
@@ -414,6 +473,26 @@ You can see 21 for the upstream_rq_pending_overflow value which means 21 calls s
 ```
 
 Приложите скриншот работы circuit breaker'а
+
+Дополнительно запустил такую команду
+
+```bash
+kubectl exec -n cinemaabyss $FORTIO_POD -c fortio -- fortio load -c 150 -qps 0 -n 1000 -loglevel Warning http://movies-service:8081/api/movies
+```
+
+<div align="center">
+
+![Скриншот результатов теста Fortio](./documentation/pictures/fortio-test.png)
+
+</div>
+
+#### Скриншот работы circuit breaker'а
+
+<div align="center">
+
+![Скриншот работы circuit breaker'а](./documentation/pictures/circuit-breaker-stats.png)
+
+</div>
 
 Удаляем все
 ```bash

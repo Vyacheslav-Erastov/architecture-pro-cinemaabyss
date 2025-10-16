@@ -1,0 +1,78 @@
+@startuml
+
+!define RELATIVE_INCLUDE
+!include ../diagrams/include/C4_Container.puml
+
+skinparam linetype polyline
+
+title CinemaAbyss Container Diagram
+
+top to bottom direction
+
+Person(user, User, "Пользователь системы Кинобездна")
+
+System_Boundary(CinemaAbyssSystem, "CinemaAbyss System") {
+    Boundary(b1, ""){
+        Container(client, "Client", "Mobile, Desk, TV, Web", "Предоставляет функциональность системы Кинобездна")
+        Container(bff, "BFF", "Javascript, NodeJS", "Предоставляет промежуточный слой перед API-Gateway")
+        Container(api_gateway, "API-Gateway", "Python, FastAPI", "Предоставляет функционал системы Кинобездна по API")
+        Container(user_service, "User Service", "Python, FastAPI", "Предоставляет функционал управления пользователями")
+        Container(metrics_service, "Metrics Service", "Python, FastAPI", "Предоставляет функционал обработки метрик")
+        Container(payment_service, "Payment Service", "Python, FastAPI", "Предоставляет функционал обработки платежей")
+        Container(movie_service, "Movie Service", "Python, FastAPI", "Предоставляет функционал обработки информации о фильмах")
+        Container(feed_service, "Feed Service", "Python, FastAPI", "Предоставляет функционал обработки киноленты")
+        Container(streaming_service, "Streaming Service", "Python, FastAPI", "Генерирует подписанные URL для CDN и сохраняет метрики пользователя")
+        Container(subscription_service, "Subscription Service", "Python, FastAPI", "Предоставляет функционал обработки подписок")
+        ContainerQueue(metrics_queue, "Metrics Queue", "Kafka", "Очередь для метрик пользователей")
+    }
+    Boundary(b2, ""){
+        ContainerDb(user_database, "User Database", "PostgreSQL Database", "Хранит информацию о пользователях")
+        ContainerDb(movie_database, "Movie Database", "PostgreSQL Database", "Хранит метаинформацию о фильмах")
+        ContainerDb(payment_database, "Payment Database", "PostgreSQL Database", "Хранит историю платежей")
+        ContainerDb(subscription_database, "Subscription Database", "PostgreSQL Database", "Хранит информацию о подписках")
+        ContainerDb(metrics_database, "Metrics Database", "ClickHouse", "Хранит метрики пользователей")
+        ContainerQueue(feed_cash, "Feed Cash", "Redis", "Хранит кеш рекомендаций для пользователей")
+    }
+}
+
+Boundary(b3, ""){
+    System_Ext(PaymentGatewaySystem, "Payment Gateway System", "Система обработки платежей")
+    System_Ext(MovieSystems, "Movie Systems", "Внешние онлайн-кинотеатры")
+    System_Ext(RecommendationSystem, "Recommendation System", "Внешняя рекомендательная система")
+    SystemDb_Ext(S3Database, "S3", "База данных S3 для хранения видео")
+    System_Ext(CDN, "CDN", "Геораспределенная система доставки контента")
+}
+
+Rel(user, client, "Использует", "cross-platform")
+Rel(client, bff, "Использует", "sync, JSON/HTTPS")
+Rel(bff, api_gateway, "Использует", "sync, JSON/HTTPS")
+
+Rel(api_gateway, user_service, "Направляет запросы", "sync, JSON/HTTPS")
+Rel(api_gateway, payment_service, "Направляет запросы", "sync, JSON/HTTPS")
+Rel(api_gateway, movie_service, "Направляет запросы", "sync, JSON/HTTPS")
+Rel(api_gateway, metrics_service, "Направляет запросы", "sync, JSON/HTTPS")
+Rel(api_gateway, streaming_service, "Направляет запросы", "sync, JSON/HTTPS")
+Rel(api_gateway, subscription_service, "Направляет запросы", "sync, JSON/HTTPS")
+Rel(api_gateway, feed_service, "Направляет запросы", "sync, JSON/HTTPS")
+
+Rel(user_service, user_database, "Читает и пишет", "sync, SQLModel")
+Rel(payment_service, payment_database, "Читает и пишет", "sync, SQLModel")
+Rel(movie_service, movie_database, "Читает и пишет", "sync, SQLModel")
+Rel(subscription_service, subscription_database, "Читает и пишет", "sync, SQLModel")
+Rel(metrics_service, metrics_database, "Читает и пишет", "sync")
+Rel(feed_service, feed_cash, "Кеширует ленты пользователей", "sync/async")
+
+Rel_R(feed_service, movie_service, "Запрашивает информацию о фильмах для ленты", "sync/async")
+Rel(feed_service, RecommendationSystem, "Запрашивает информацию о рекомендациях для ленты", "sync/async")
+
+Rel(streaming_service, subscription_service, "Проверка подписки", "sync, JSON/HTTPS", "Валидация доступа")
+Rel(streaming_service, CDN, "Генерация Signed URL", "sync, API", "Создание подписанного URL")
+
+Rel_D(client, CDN, "Воспроизведение по Signed URL", "sync", "Напрямую, минуя сервисы")
+Rel(CDN, S3Database, "Получение видео-чанков", "sync, S3 API")
+
+Rel(movie_service, MovieSystems, "Получение метаданных", "sync, HTTPS")
+Rel(payment_service, PaymentGatewaySystem, "Инициирование платежей", "sync, HTTPS")
+Rel(metrics_service, metrics_queue, "События пользователей", "async", "Аналитика")
+Rel(metrics_queue, RecommendationSystem, "Передача данных", "async")
+@enduml
